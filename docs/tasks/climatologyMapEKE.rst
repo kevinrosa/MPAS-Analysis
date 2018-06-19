@@ -1,4 +1,4 @@
-.. _task_climatologyMapSSH:
+.. _task_climatologyMapEKE:
 
 climatologyMapEKE
 =================
@@ -20,7 +20,7 @@ The following configuration options are available for this task::
 
   [climatologyMapEKE]
   ## options related to plotting horizontally remapped climatologies of
-  ## sea surface height (SSH) against reference model results and observations
+  ## eddy kinetic energy (EKE) against reference model results and observations
 
   # colormap for model/observations
   colormapNameResult = Maximenko
@@ -61,8 +61,6 @@ For more details, see:
 
 .. note::
 
-   The color map and contours for these plots were inspired by Fig. 1 from
-   `Maximenko et al. (2009)`_
 
 Observations
 ------------
@@ -76,4 +74,3 @@ Example Result
    :width: 500 px
    :align: center
 
-.. _`Maximenko et al. (2009)`: http://journals.ametsoc.org/doi/abs/10.1175/2009JTECHO672.1

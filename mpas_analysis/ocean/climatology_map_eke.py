@@ -1,4 +1,4 @@
-# Copyright (c) 2017,  Los Alamos National Security, LLC (LANS)
+# Copyright (c) 2018,  Los Alamos National Security, LLC (LANS)
 # and the University Corporation for Atmospheric Research (UCAR).
 #
 # Unless noted otherwise source code is licensed under the BSD license.
@@ -25,14 +25,14 @@ from mpas_analysis.shared.grid import LatLonGridDescriptor
 from mpas_analysis.shared.constants import constants
 
 
-class ClimatologyMapSSH(AnalysisTask):  # {{{
+class ClimatologyMapEKE(AnalysisTask):  # {{{
     """
-    An analysis task for comparison of sea surface height (ssh) against
+    An analysis task for comparison of eddy kinetic energy (eke) against
     observations
     """
     # Authors
     # -------
-    # Xylar Asay-Davis
+    # Kevin Rosa, Xylar Asay-Davis
 
     def __init__(self, config, mpasClimatologyTask,
                  refConfig=None):  # {{{
@@ -52,16 +52,16 @@ class ClimatologyMapSSH(AnalysisTask):  # {{{
         """
         # Authors
         # -------
-        # Xylar Asay-Davis
+        # Kevin Rosa, Xylar Asay-Davis
 
-        fieldName = 'ssh'
+        fieldName = 'eke'
         # call the constructor from the base class (AnalysisTask)
-        super(ClimatologyMapSSH, self).__init__(
-                config=config, taskName='climatologyMapSSH',
+        super(ClimatologyMapEKE, self).__init__(
+                config=config, taskName='climatologyMapEKE',
                 componentName='ocean',
                 tags=['climatology', 'horizontalMap', fieldName, 'publicObs'])
 
-        mpasFieldName = 'timeMonthly_avg_pressureAdjustedSSH'
+        mpasFieldName = 'timeMonthly_avg_EKE'
 
         iselValues = None
 
@@ -83,7 +83,7 @@ class ClimatologyMapSSH(AnalysisTask):  # {{{
 
         # the variable mpasFieldName will be added to mpasClimatologyTask
         # along with the seasons.
-        remapClimatologySubtask = RemapSSHClimatology(
+        remapClimatologySubtask = RemapEKEClimatology(
             mpasClimatologyTask=mpasClimatologyTask,
             parentTask=self,
             climatologyName=fieldName,
@@ -153,7 +153,7 @@ class ClimatologyMapSSH(AnalysisTask):  # {{{
     # }}}
 
 
-class RemapSSHClimatology(RemapMpasClimatologySubtask):  # {{{
+class RemapEKEClimatology(RemapMpasClimatologySubtask):  # {{{
     """
     Change units from m to cm
     """

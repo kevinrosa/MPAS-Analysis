@@ -53,21 +53,28 @@ The EKE plot will not require any additional input files.
 The only new concern is an oceanographic one: EKE is most relevant for  
 eddy-permitting configurations of the model.  
 
-Unlike temperature or SSH, EKE is not a field that is solved for in MPAS-O.
+Unlike temperature or SSH, EKE is not a field that is calculated in MPAS-O.
 
 mpasField = (ds.timeMonthly_avg_velocityZonalSquared[0,0,:,:].values - ds.timeMonthly_avg_velocityZonal[0,0,:,:].values**2 + \
         ds.timeMonthly_avg_velocityMeridionalSquared[0,0,:,:].values - ds.timeMonthly_avg_velocityMeridional[0,0,:,:].values**2)/2.
 
+from ncdump: `double timeMonthly_avg_velocityZonal(Time, nCells, nVertLevels)`
 
 Calculations and spatial interpolation performed in `mpas_analysis/ocean/climatology_map_eke.py`.
-Colormaps are set in `docs/tasks/climatologyMapEKE.rst`.  
+Colormaps are set in `docs/tasks/climatologyMapEKE.rst` and(or?) `mpas_analysis/config.default`.  
+- `config.default` doesn't specify colorbar units or title
+
 Actual plotting is done in `mpas_analysis/shared/plot/plotting.py`.
 
 Surface EKE only (?)
 
-Fields to read in (specified in config.myrun):
+Fields to read in (specified in `mpas_analysis/config.default` and also `config.myrun`):
 - `timeMonthly_avg_velocityZonal`, `timeMonthly_avg_velocityMeridional`
 - `timeMonthly_avg_velocityZonalSquared`, `timeMonthly_avg_velocityMeridionalSquared`
+
+
+Colorbar: range 0 to 1000 cm2/s2.
+contourLevelsResult same as colorbarTicksResult (SSH it was same as colorbarLevelsResult but for SSH there were more ticks than levels -- the opposite of Luke's EKE script).
 
 <a name="physics"/>
 # Physics

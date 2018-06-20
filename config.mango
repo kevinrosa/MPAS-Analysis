@@ -144,7 +144,7 @@ htmlSubdirectory = html
 # option:
 #    ./run_mpas_analysis config.analysis --generate \
 #         only_ocean,no_timeSeries,timeSeriesSST
-generate = ['only_climatology','all_sst','all_ssh','all_sss'] 
+generate = ['only_climatology','all_sst','all_ssh','all_sss','no_argo'] 
 
 [climatology]
 ## options related to producing climatologies, typically to compare against

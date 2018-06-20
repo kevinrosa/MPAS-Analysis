@@ -41,7 +41,7 @@ preprocessedReferenceRunName = None
 ## options related to executing parallel tasks
 
 # the number of parallel tasks (1 means tasks run in serial, the default)
-parallelTaskCount = 20
+parallelTaskCount = 1
 
 # Prefix on the commnd line before a parallel task (e.g. 'srun -n 1 python')
 # Default is no prefix (run_mpas_analysis is executed directly)
@@ -50,7 +50,7 @@ commandPrefix =
 # the parallelism mode in ncclimo ("serial" or "bck")
 # Set this to "bck" (background parallelism) if running on a machine that can
 # handle 12 simultaneous processes, one for each monthly climatology.
-ncclimoParallelMode = bck
+ncclimoParallelMode = serial
 
 [input]
 ## options related to reading in the results to be analyzed
@@ -144,7 +144,7 @@ htmlSubdirectory = html
 # option:
 #    ./run_mpas_analysis config.analysis --generate \
 #         only_ocean,no_timeSeries,timeSeriesSST
-generate = ['only_climatology','all_sst','all_ssh','all_sss','no_argo'] 
+generate = ['only_climatology','only_sst'] # all_sst','all_ssh','all_sss','no_argo'] 
 
 [climatology]
 ## options related to producing climatologies, typically to compare against

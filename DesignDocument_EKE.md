@@ -97,11 +97,12 @@ I will try to follow the structure of `mpas_analysis/ocean/compute_transects_wit
 I will test runs of varying durations and resolutions to make sure the EKE plotting is working.  I will also ensure that the following jobs fail:
 1. Input model results files missing at least one of the 4 necessary velocity variables.
 1. Request seasonal plots.
-1. 
+1.
 
 
 <a name="bibliography"/>
 # Bibliography
+
 - https://latex.codecogs.com/eqneditor/editor.php
 - Chelton, D. B., Schlax, M. G., Samelson, R. M. & Szoeke, R. A. de. Global observations of large oceanic eddies. Geophysical Research Letters 34, (2007).
 - Laurindo, L. C., Mariano, A. J. & Lumpkin, R. An improved near-surface velocity climatology for the global ocean from drifter observations. Deep Sea Research Part I: Oceanographic Research Papers 124, 73–92 (2017).

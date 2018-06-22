@@ -32,7 +32,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
     """
     # Authors
     # -------
-    # Kevin Rosa, Xylar Asay-Davis
+    # Xylar Asay-Davis, Kevin Rosa
 
     def __init__(self, config, mpasClimatologyTask,
                  refConfig=None):  # {{{
@@ -52,7 +52,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
         """
         # Authors
         # -------
-        # Kevin Rosa, Xylar Asay-Davis
+        # Xylar Asay-Davis, Kevin Rosa
 
         fieldName = 'eke'
         # call the constructor from the base class (AnalysisTask)

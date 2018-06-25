@@ -98,19 +98,18 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
         if refConfig is None:
 
             refTitleLabel = \
-                'Observations (Hadley/OI, {} {:04d}-{:04d})'.format(
-                        period, climStartYear, climEndYear)
+                'Observations (Surface Current Variance from Drifter Data)'
 
             observationsDirectory = build_config_full_path(
                 config, 'oceanObservations',
                 '{}Subdirectory'.format(fieldName))
 
             obsFileName = \
-                "{}/MODEL.EKE.HAD187001-198110.OI198111-201203.nc".format(
+                "drifter_variance.nc".format(
                     observationsDirectory)
             refFieldName = 'eke'
-            outFileLabel = 'ekeHADOI'
-            galleryName = 'Observations: Hadley-NOAA-OI'
+            outFileLabel = 'ekeDRIFTER'
+            galleryName = 'Observations: Current Variance from Drifters'
 
             remapObservationsSubtask = RemapObservedEKEClimatology(
                     parentTask=self, seasons=seasons, fileName=obsFileName,
@@ -145,9 +144,9 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                         refFieldName=refFieldName,
                         refTitleLabel=refTitleLabel,
                         diffTitleLabel=diffTitleLabel,
-                        unitsLabel=r'$^o$C',
-                        imageCaption='Mean Sea Surface Temperature',
-                        galleryGroup='Sea Surface Temperature',
+                        unitsLabel=r'cm$^2$/s$^2$',
+                        imageCaption='Mean Surface Eddy Kinetic Energy',
+                        galleryGroup='Eddy Kinetic Energy',
                         groupSubtitle=None,
                         groupLink='eke',
                         galleryName=galleryName)

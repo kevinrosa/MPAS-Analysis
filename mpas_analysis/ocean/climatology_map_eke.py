@@ -72,7 +72,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
         seasons = config.getExpression(sectionName, 'seasons')
         
         # EKE observations are annual climatology so only accept annual climatology
-        if seasons ~= ['ANN']
+        if seasons != ['ANN']
             raise ValueError('config section {} does not contain valid list '
                              'of seasons. For EKE, may only request annual '
                              'climatology'.format(sectionName))

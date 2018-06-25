@@ -60,7 +60,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                 componentName='ocean',
                 tags=['climatology', 'horizontalMap', fieldName, 'publicObs'])
 
-        mpasFieldName = 'timeMonthly_avg_activeTracers_temperature'
+        mpasFieldName = 'timeMonthly_avg_velocityZonal'
         iselValues = {'nVertLevels': 0}
 
         sectionName = self.taskName
@@ -96,10 +96,6 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             iselValues=iselValues)
 
         if refConfig is None:
-            if climStartYear < 1925:
-                period = 'pre-industrial'
-            else:
-                period = 'present-day'
 
             refTitleLabel = \
                 'Observations (Hadley/OI, {} {:04d}-{:04d})'.format(

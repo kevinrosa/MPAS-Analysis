@@ -1,4 +1,4 @@
-# Copyright (c) 2018,  Los Alamos National Security, LLC (LANS)
+# Copyright (c) 2017,  Los Alamos National Security, LLC (LANS)
 # and the University Corporation for Atmospheric Research (UCAR).
 #
 # Unless noted otherwise source code is licensed under the BSD license.
@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
 import xarray as xr
+import datetime
 
 from mpas_analysis.shared import AnalysisTask
 
@@ -22,17 +23,15 @@ from mpas_analysis.ocean.plot_climatology_map_subtask import \
 
 from mpas_analysis.shared.grid import LatLonGridDescriptor
 
-from mpas_analysis.shared.constants import constants
-
 
 class ClimatologyMapEKE(AnalysisTask):  # {{{
     """
-    An analysis task for comparison of eddy kinetic energy (eke) against
+    An analysis task for comparison of sea surface temperature (eke) against
     observations
     """
     # Authors
     # -------
-    # Xylar Asay-Davis, Kevin Rosa
+    # Luke Van Roekel, Xylar Asay-Davis, Milena Veneziani
 
     def __init__(self, config, mpasClimatologyTask,
                  refConfig=None):  # {{{
@@ -52,7 +51,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
         """
         # Authors
         # -------
-        # Xylar Asay-Davis, Kevin Rosa
+        # Xylar Asay-Davis
 
         fieldName = 'eke'
         # call the constructor from the base class (AnalysisTask)
@@ -61,11 +60,13 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                 componentName='ocean',
                 tags=['climatology', 'horizontalMap', fieldName, 'publicObs'])
 
-        mpasFieldName = 'timeMonthly_avg_EKE'
-
-        iselValues = None
+        mpasFieldName = 'timeMonthly_avg_activeTracers_temperature'
+        iselValues = {'nVertLevels': 0}
 
         sectionName = self.taskName
+
+        climStartYear = config.getint(sectionName, 'obsStartYear')
+        climEndYear = config.getint(sectionName, 'obsEndYear')
 
         # read in what seasons we want to plot
         seasons = config.getExpression(sectionName, 'seasons')
@@ -83,7 +84,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
 
         # the variable mpasFieldName will be added to mpasClimatologyTask
         # along with the seasons.
-        remapClimatologySubtask = RemapEKEClimatology(
+        remapClimatologySubtask = RemapMpasClimatologySubtask(
             mpasClimatologyTask=mpasClimatologyTask,
             parentTask=self,
             climatologyName=fieldName,
@@ -93,22 +94,27 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             iselValues=iselValues)
 
         if refConfig is None:
+            if climStartYear < 1925:
+                period = 'pre-industrial'
+            else:
+                period = 'present-day'
 
-            refTitleLabel = 'Observations (AVISO Dynamic ' \
-                'Topography, 1993-2010)'
+            refTitleLabel = \
+                'Observations (Hadley/OI, {} {:04d}-{:04d})'.format(
+                        period, climStartYear, climEndYear)
 
             observationsDirectory = build_config_full_path(
                 config, 'oceanObservations',
                 '{}Subdirectory'.format(fieldName))
 
             obsFileName = \
-                "{}/zos_AVISO_L4_199210-201012.nc".format(
+                "{}/MODEL.EKE.HAD187001-198110.OI198111-201203.nc".format(
                     observationsDirectory)
-            refFieldName = 'zos'
-            outFileLabel = 'sshAVISO'
-            galleryName = 'Observations: AVISO'
+            refFieldName = 'eke'
+            outFileLabel = 'ekeHADOI'
+            galleryName = 'Observations: Hadley-NOAA-OI'
 
-            remapObservationsSubtask = RemapObservedSSHClimatology(
+            remapObservationsSubtask = RemapObservedEKEClimatology(
                     parentTask=self, seasons=seasons, fileName=obsFileName,
                     outFilePrefix=refFieldName,
                     comparisonGridNames=comparisonGridNames)
@@ -122,7 +128,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             refTitleLabel = 'Ref: {}'.format(refRunName)
 
             refFieldName = mpasFieldName
-            outFileLabel = 'ssh'
+            outFileLabel = 'eke'
             diffTitleLabel = 'Main - Reference'
 
         for comparisonGridName in comparisonGridNames:
@@ -132,20 +138,20 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                                                     comparisonGridName,
                                                     remapClimatologySubtask,
                                                     remapObservationsSubtask,
-                                                    refConfig, removeMean=True)
+                                                    refConfig)
 
                 subtask.set_plot_info(
                         outFileLabel=outFileLabel,
-                        fieldNameInTitle='Zero-mean SSH',
+                        fieldNameInTitle='EKE',
                         mpasFieldName=mpasFieldName,
                         refFieldName=refFieldName,
                         refTitleLabel=refTitleLabel,
                         diffTitleLabel=diffTitleLabel,
-                        unitsLabel=r'cm',
-                        imageCaption='Mean Sea Surface Height',
-                        galleryGroup='Sea Surface Height',
+                        unitsLabel=r'$^o$C',
+                        imageCaption='Mean Sea Surface Temperature',
+                        galleryGroup='Sea Surface Temperature',
                         groupSubtitle=None,
-                        groupLink='ssh',
+                        groupLink='eke',
                         galleryName=galleryName)
 
                 self.add_subtask(subtask)
@@ -153,53 +159,13 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
     # }}}
 
 
-class RemapEKEClimatology(RemapMpasClimatologySubtask):  # {{{
+class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
     """
-    Change units from m to cm
-    """
-    # Authors
-    # -------
-    # Xylar Asay-Davis
-
-    def customize_masked_climatology(self, climatology, season):  # {{{
-        """
-        Mask the melt rates using ``landIceMask`` and rescale it to m/yr
-
-        Parameters
-        ----------
-        climatology : ``xarray.Dataset```
-            The MPAS climatology data set that has had a mask added but has
-            not yet been remapped
-
-        season : str
-            The name of the season to be masked
-
-        Returns
-        -------
-        climatology : ``xarray.Dataset`` object
-            the modified climatology data set
-        """
-        # Authors
-        # -------
-        # Xylar Asay-Davis
-
-        fieldName = self.variableList[0]
-
-        # scale the field to cm from m
-        climatology[fieldName] = constants.cm_per_m * climatology[fieldName]
-
-        return climatology  # }}}
-
-    # }}}
-
-
-class RemapObservedSSHClimatology(RemapObservedClimatologySubtask):  # {{{
-    """
-    A subtask for reading and remapping SSH observations
+    A subtask for reading and remapping EKE observations
     """
     # Authors
     # -------
-    # Xylar Asay-Davis
+    # Luke Van Roekel, Xylar Asay-Davis, Milena Veneziani
 
     def get_observation_descriptor(self, fileName):  # {{{
         '''
@@ -245,13 +211,17 @@ class RemapObservedSSHClimatology(RemapObservedClimatologySubtask):  # {{{
         # -------
         # Xylar Asay-Davis
 
+        sectionName = self.taskName
+        climStartYear = self.config.getint(sectionName, 'obsStartYear')
+        climEndYear = self.config.getint(sectionName, 'obsEndYear')
+        timeStart = datetime.datetime(year=climStartYear, month=1, day=1)
+        timeEnd = datetime.datetime(year=climEndYear, month=12, day=31)
+
         dsObs = xr.open_dataset(fileName)
-        dsObs.rename({'time': 'Time'}, inplace=True)
+        dsObs.rename({'time': 'Time', 'EKE': 'eke'}, inplace=True)
+        dsObs = dsObs.sel(Time=slice(timeStart, timeEnd))
         dsObs.coords['month'] = dsObs['Time.month']
         dsObs.coords['year'] = dsObs['Time.year']
-
-        # scale the field to cm from m
-        dsObs['zos'] = constants.cm_per_m * dsObs['zos']
 
         return dsObs  # }}}
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2017,  Los Alamos National Security, LLC (LANS)
+# Copyright (c) 2018,  Los Alamos National Security, LLC (LANS)
 # and the University Corporation for Atmospheric Research (UCAR).
 #
 # Unless noted otherwise source code is licensed under the BSD license.
@@ -185,8 +185,8 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         # create a descriptor of the observation grid using the lat/lon
         # coordinates
         obsDescriptor = LatLonGridDescriptor.read(fileName=fileName,
-                                                  latVarName='lat',
-                                                  lonVarName='lon')
+                                                  latVarName='Lat',
+                                                  lonVarName='Lon')
         return obsDescriptor  # }}}
 
     def build_observational_dataset(self, fileName):  # {{{
@@ -209,17 +209,20 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         # Xylar Asay-Davis
 
         sectionName = self.taskName
+        '''
         climStartYear = self.config.getint(sectionName, 'obsStartYear')
         climEndYear = self.config.getint(sectionName, 'obsEndYear')
         timeStart = datetime.datetime(year=climStartYear, month=1, day=1)
         timeEnd = datetime.datetime(year=climEndYear, month=12, day=31)
-
+        '''
         dsObs = xr.open_dataset(fileName)
+        dsObs.rename({'Up2bar': 'eke'}, inplace=True)
+        '''
         dsObs.rename({'time': 'Time', 'EKE': 'eke'}, inplace=True)
         dsObs = dsObs.sel(Time=slice(timeStart, timeEnd))
         dsObs.coords['month'] = dsObs['Time.month']
         dsObs.coords['year'] = dsObs['Time.year']
-
+        '''
         return dsObs  # }}}
 
     # }}}

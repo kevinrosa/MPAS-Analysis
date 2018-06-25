@@ -88,7 +88,9 @@ Files to edit:
 
 The main challenge for plotting EKE is that EKE is a function of several model variables and is not itself a variable that is directly written by the model.
 Because of this, the climatology mapping functions for SSH, SST, SSS, and MLD will not serve as a direct template for the EKE formulation in `mpas_analysis/ocean/climatology_map_eke.py`.
-I will try to follow the structure of `mpas_analysis/ocean/compute_transects_with_vel_mag.py` as much as possible.
+I will try to follow the structure of `mpas_analysis/ocean/compute_transects_with_vel_mag.py` as much as possible.  
+
+It appears that there is a method for plotting velocity magnitudes on the antarctic grid.  Look into 'climatology_map_sose.py'...
 
 # Testing
 

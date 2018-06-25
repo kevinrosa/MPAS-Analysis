@@ -102,7 +102,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                 '{}Subdirectory'.format(fieldName))
 
             obsFileName = \
-                "drifter_variance.nc".format(
+                "{}/drifter_variance.nc".format(
                     observationsDirectory)
             refFieldName = 'eke'
             outFileLabel = 'ekeDRIFTER'

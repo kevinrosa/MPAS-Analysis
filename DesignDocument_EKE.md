@@ -94,7 +94,7 @@ I will try to follow the structure of `mpas_analysis/ocean/compute_transects_wit
 I will test runs of varying durations and resolutions to make sure the EKE plotting is working.  I will also ensure that the following jobs fail:
 1. Input model results files missing at least one of the 4 necessary velocity variables.
 1. Request seasonal plots.
-1.
+1. Test that `./download_analysis_data.py` downloads EKE data.
 
 
 # Bibliography

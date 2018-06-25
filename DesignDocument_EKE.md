@@ -11,7 +11,7 @@ Table of Contents
 1. [Summary](#summary)  
 1. [Requirements](#requirements)  
 1. [Physics](#physics)
-1. [Design and Implementation](#design and implementation)
+1. [Design and Implementation](#design-and-implementation)
 1. [Testing](#testing)
 1. [Next Steps](#next)
 1. [Bibliography](#bibliography)
@@ -77,13 +77,14 @@ template.
 Files to create:
 - `mpas_analysis/ocean/climatology_map_eke.py`
 - `docs/tasks/climatologyMapEKE.rst`
+- `README.md` for `drifter_variance.nc` dataset
 
 Files to edit:
 - `mpas_analysis/ocean/__init__.py`
 - `docs/analysis_tasks.rst`
 - `docs/api.rst`
 - `mpas_analysis/config.default`
-- 'mpas_analysis/obs/analysis_input_files'
+- `mpas_analysis/obs/analysis_input_files`
 
 The main challenge for plotting EKE is that EKE is a function of several model variables and is not itself a variable that is directly written by the model.
 Because of this, the climatology mapping functions for SSH, SST, SSS, and MLD will not serve as a direct template for the EKE formulation in `mpas_analysis/ocean/climatology_map_eke.py`.

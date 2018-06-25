@@ -257,6 +257,7 @@ generate = True
 baseDirectory = /dir/to/ocean/observations
 sstSubdirectory = SST
 sssSubdirectory = SSS
+ekeSubdirectory = EKE
 mldSubdirectory = MLD
 ninoSubdirectory = Nino
 mhtSubdirectory = MHT

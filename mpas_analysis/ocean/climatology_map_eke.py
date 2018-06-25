@@ -26,12 +26,12 @@ from mpas_analysis.shared.grid import LatLonGridDescriptor
 
 class ClimatologyMapEKE(AnalysisTask):  # {{{
     """
-    An analysis task for comparison of sea surface temperature (eke) against
+    An analysis task for comparison of eddy kinetic energy (eke) against
     observations
     """
     # Authors
     # -------
-    # Luke Van Roekel, Xylar Asay-Davis, Milena Veneziani
+    # Luke Van Roekel, Xylar Asay-Davis, Milena Veneziani, Kevin Rosa
 
     def __init__(self, config, mpasClimatologyTask,
                  refConfig=None):  # {{{
@@ -51,7 +51,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
         """
         # Authors
         # -------
-        # Xylar Asay-Davis
+        # Xylar Asay-Davis, Kevin Rosa
 
         fieldName = 'eke'
         # call the constructor from the base class (AnalysisTask)
@@ -70,10 +70,12 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
 
         # read in what seasons we want to plot
         seasons = config.getExpression(sectionName, 'seasons')
-
-        if len(seasons) == 0:
+        
+        # EKE observations are annual climatology so only accept annual climatology
+        if seasons ~= ['ANN']
             raise ValueError('config section {} does not contain valid list '
-                             'of seasons'.format(sectionName))
+                             'of seasons. For EKE, may only request annual '
+                             'climatology'.format(sectionName))
 
         comparisonGridNames = config.getExpression(sectionName,
                                                    'comparisonGrids')

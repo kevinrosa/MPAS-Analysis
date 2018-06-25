@@ -11,14 +11,13 @@ Table of Contents
 1. [Summary](#summary)  
 1. [Requirements](#requirements)  
 1. [Physics](#physics)
-1. [Design and Implementation](#design)
+1. [Design and Implementation](#design and implementation)
 1. [Testing](#testing)
 1. [Next Steps](#next)
 1. [Bibliography](#bibliography)
 
 ----------------
 
-<a name="summary"/>
 # Summary
 
 The document describes a new feature which will be added to the MPAS-Analysis
@@ -27,7 +26,6 @@ The EKE climatology map will function very similarly to other climatological fie
 The output file will contain three images: the modeled EKE climatology, the observed EKE climatology, and the difference.
 Plotting EKE is particularly important for MPAS-O because one can configure meshes with eddy-permitting regions and would then want to compare the EKE in these regions against observations.
 
-<a name="requirements"/>
 # Requirements
 
 1. Model output must contain the meridional and zonal components of both `timeMonthly_avg_velocity*` and `timeMonthly_avg_velocity*Squared`.
@@ -41,7 +39,6 @@ Plotting EKE is particularly important for MPAS-O because one can configure mesh
   1. When setting `generate`, task `climatologyMapEKE` has tags: `climatology, horizontalMap, eke`
 
 
-<a name="physics"/>
 # Physics
 
 In the ocean, it is convenient to separate the the horizontal current, *u*,
@@ -71,7 +68,6 @@ so two different EKE equations must be used:
 
 
 
-<a name="design"/>
 # Design and Implementation
 The primary design consideration for this feature is that it integrate
 seamlessly with the rest of the analysis tools.
@@ -100,7 +96,6 @@ I will test runs of varying durations and resolutions to make sure the EKE plott
 1.
 
 
-<a name="bibliography"/>
 # Bibliography
 
 - https://latex.codecogs.com/eqneditor/editor.php

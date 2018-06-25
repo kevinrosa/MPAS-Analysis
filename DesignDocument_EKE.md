@@ -83,6 +83,7 @@ Files to edit:
 - `docs/analysis_tasks.rst`
 - `docs/api.rst`
 - `mpas_analysis/config.default`
+- 'mpas_analysis/obs/analysis_input_files'
 
 The main challenge for plotting EKE is that EKE is a function of several model variables and is not itself a variable that is directly written by the model.
 Because of this, the climatology mapping functions for SSH, SST, SSS, and MLD will not serve as a direct template for the EKE formulation in `mpas_analysis/ocean/climatology_map_eke.py`.

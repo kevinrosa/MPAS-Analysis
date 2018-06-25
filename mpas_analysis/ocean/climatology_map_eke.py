@@ -65,9 +65,6 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
 
         sectionName = self.taskName
 
-        climStartYear = config.getint(sectionName, 'obsStartYear')
-        climEndYear = config.getint(sectionName, 'obsEndYear')
-
         # read in what seasons we want to plot
         seasons = config.getExpression(sectionName, 'seasons')
         

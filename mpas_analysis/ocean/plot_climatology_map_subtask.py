@@ -443,8 +443,8 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
         lonTarg, latTarg = np.meshgrid(lon, lat)
 
       #  if remappedRefClimatology is None:
-            refOutput = None
-            bias = None
+        refOutput = None
+        bias = None
       #  else:
       #      refOutput = nans_to_numpy_mask(
       #          remappedRefClimatology[self.refFieldName].values)

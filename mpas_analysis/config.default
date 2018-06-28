@@ -704,12 +704,12 @@ colormapNameResult = Maximenko
 # color indices into colormapName for filled contours
 colormapIndicesResult = numpy.array(numpy.linspace(0, 255, 38), int)
 # colormap levels/values for contour boundaries
-colorbarLevelsResult = numpy.arange(0., 1000., 31.)
+colorbarLevelsResult = numpy.arange(-240., 130., 10.) # numpy.arange(0., 1000., 31.)
 # colormap levels/values for ticks (defaults to same as levels)
-colorbarTicksResult = numpy.arange(0., 1000., 11.)
+colorbarTicksResult = numpy.arange(-240., 160., 40.) # numpy.arange(0., 1000., 11.)
 
 # contour line levels
-contourLevelsResult = numpy.arange(0., 1000., 11.)
+contourLevelsResult = numpy.arange(-240., 130., 10.) # numpy.arange(0., 1000., 11.)
 # contour line thickness
 contourThicknessResult = 0.25
 # contour color

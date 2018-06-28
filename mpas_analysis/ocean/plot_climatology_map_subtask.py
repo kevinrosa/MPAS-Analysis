@@ -449,7 +449,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
             refOutput = nans_to_numpy_mask(
             remappedRefClimatology[self.refFieldName].values)
 
-            bias = modelOutput - refOutput
+            bias = modelOutput - zip(*refOutput)
 
         filePrefix = self.filePrefix
         outFileName = '{}/{}.png'.format(self.plotsDirectory, filePrefix)

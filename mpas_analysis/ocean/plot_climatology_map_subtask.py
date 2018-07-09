@@ -447,7 +447,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
             bias = None
         else:
             refOutput = nans_to_numpy_mask(
-                remappedRefClimatology[self.refFieldName].values)
+            remappedRefClimatology[self.refFieldName].values)
 
             bias = modelOutput - refOutput
 

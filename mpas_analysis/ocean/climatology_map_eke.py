@@ -1,4 +1,4 @@
-# Copyright (c) 2017,  Los Alamos National Security, LLC (LANS)
+# Copyright (c) 2018,  Los Alamos National Security, LLC (LANS)
 # and the University Corporation for Atmospheric Research (UCAR).
 #
 # Unless noted otherwise source code is licensed under the BSD license.
@@ -60,19 +60,16 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                 componentName='ocean',
                 tags=['climatology', 'horizontalMap', fieldName, 'publicObs'])
 
-        mpasFieldName = 'timeMonthly_avg_activeTracers_temperature'
+        mpasFieldName = 'timeMonthly_avg_velocityZonal'
         iselValues = {'nVertLevels': 0}
 
         sectionName = self.taskName
-
-        climStartYear = config.getint(sectionName, 'obsStartYear')
-        climEndYear = config.getint(sectionName, 'obsEndYear')
 
         # read in what seasons we want to plot
         seasons = config.getExpression(sectionName, 'seasons')
         
         # EKE observations are annual climatology so only accept annual climatology
-        if seasons ~= ['ANN']
+        if seasons != ['ANN']:
             raise ValueError('config section {} does not contain valid list '
                              'of seasons. For EKE, may only request annual '
                              'climatology'.format(sectionName))
@@ -96,25 +93,20 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             iselValues=iselValues)
 
         if refConfig is None:
-            if climStartYear < 1925:
-                period = 'pre-industrial'
-            else:
-                period = 'present-day'
 
             refTitleLabel = \
-                'Observations (Hadley/OI, {} {:04d}-{:04d})'.format(
-                        period, climStartYear, climEndYear)
+                'Observations (Surface Current Variance from Drifter Data)'
 
             observationsDirectory = build_config_full_path(
                 config, 'oceanObservations',
                 '{}Subdirectory'.format(fieldName))
 
             obsFileName = \
-                "{}/MODEL.EKE.HAD187001-198110.OI198111-201203.nc".format(
+                "{}/drifter_variance.nc".format(
                     observationsDirectory)
             refFieldName = 'eke'
-            outFileLabel = 'ekeHADOI'
-            galleryName = 'Observations: Hadley-NOAA-OI'
+            outFileLabel = 'ekeDRIFTER'
+            galleryName = 'Observations: Current Variance from Drifters'
 
             remapObservationsSubtask = RemapObservedEKEClimatology(
                     parentTask=self, seasons=seasons, fileName=obsFileName,
@@ -149,9 +141,9 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                         refFieldName=refFieldName,
                         refTitleLabel=refTitleLabel,
                         diffTitleLabel=diffTitleLabel,
-                        unitsLabel=r'$^o$C',
-                        imageCaption='Mean Sea Surface Temperature',
-                        galleryGroup='Sea Surface Temperature',
+                        unitsLabel=r'cm$^2$/s$^2$',
+                        imageCaption='Mean Surface Eddy Kinetic Energy',
+                        galleryGroup='Eddy Kinetic Energy',
                         groupSubtitle=None,
                         groupLink='eke',
                         galleryName=galleryName)
@@ -190,8 +182,8 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         # create a descriptor of the observation grid using the lat/lon
         # coordinates
         obsDescriptor = LatLonGridDescriptor.read(fileName=fileName,
-                                                  latVarName='lat',
-                                                  lonVarName='lon')
+                                                  latVarName='Lat',
+                                                  lonVarName='Lon')
         return obsDescriptor  # }}}
 
     def build_observational_dataset(self, fileName):  # {{{
@@ -214,17 +206,20 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         # Xylar Asay-Davis
 
         sectionName = self.taskName
+        '''
         climStartYear = self.config.getint(sectionName, 'obsStartYear')
         climEndYear = self.config.getint(sectionName, 'obsEndYear')
         timeStart = datetime.datetime(year=climStartYear, month=1, day=1)
         timeEnd = datetime.datetime(year=climEndYear, month=12, day=31)
-
+        '''
         dsObs = xr.open_dataset(fileName)
+        dsObs.rename({'Up2bar': 'eke'}, inplace=True)
+        '''
         dsObs.rename({'time': 'Time', 'EKE': 'eke'}, inplace=True)
         dsObs = dsObs.sel(Time=slice(timeStart, timeEnd))
         dsObs.coords['month'] = dsObs['Time.month']
         dsObs.coords['year'] = dsObs['Time.year']
-
+        '''
         return dsObs  # }}}
 
     # }}}

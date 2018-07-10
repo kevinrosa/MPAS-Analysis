@@ -31,7 +31,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
     """
     # Authors
     # -------
-    # Luke Van Roekel, Xylar Asay-Davis, Milena Veneziani, Kevin Rosa
+    # Kevin Rosa
 
     def __init__(self, config, mpasClimatologyTask,
                  refConfig=None):  # {{{
@@ -177,13 +177,14 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         '''
         # Authors
         # -------
-        # Xylar Asay-Davis
+        # Kevin Rosa
 
         # create a descriptor of the observation grid using the lat/lon
         # coordinates
         obsDescriptor = LatLonGridDescriptor.read(fileName=fileName,
                                                   latVarName='Lat',
-                                                  lonVarName='Lon')
+                                                  lonVarName='Lon')     
+
         return obsDescriptor  # }}}
 
     def build_observational_dataset(self, fileName):  # {{{
@@ -203,23 +204,15 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         '''
         # Authors
         # -------
-        # Xylar Asay-Davis
-
+        # Kevin Rosa
         sectionName = self.taskName
-        '''
-        climStartYear = self.config.getint(sectionName, 'obsStartYear')
-        climEndYear = self.config.getint(sectionName, 'obsEndYear')
-        timeStart = datetime.datetime(year=climStartYear, month=1, day=1)
-        timeEnd = datetime.datetime(year=climEndYear, month=12, day=31)
-        '''
+
         dsObs = xr.open_dataset(fileName)
         dsObs.rename({'Up2bar': 'eke'}, inplace=True)
-        '''
-        dsObs.rename({'time': 'Time', 'EKE': 'eke'}, inplace=True)
-        dsObs = dsObs.sel(Time=slice(timeStart, timeEnd))
-        dsObs.coords['month'] = dsObs['Time.month']
-        dsObs.coords['year'] = dsObs['Time.year']
-        '''
+        
+        # to solve issue with array being transposed relative to model:
+        dsObs['eke'] = dsObs['eke'].transpose('latitude','longitude')
+
         return dsObs  # }}}
 
     # }}}

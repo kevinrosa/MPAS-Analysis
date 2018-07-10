@@ -208,7 +208,9 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         sectionName = self.taskName
 
         dsObs = xr.open_dataset(fileName)
-        dsObs.rename({'Up2bar': 'eke'}, inplace=True)
+        # since eke is same size as N, will just rename and update
+        dsObs.rename({'N': 'eke'}, inplace=True)
+        dsObs['eke'].values = (dsObs['Up2bar'].values + dsObs['Vp2bar'].values) * 0.5 * 100 * 100
         
         # to solve issue with array being transposed relative to model:
         dsObs['eke'] = dsObs['eke'].transpose('latitude','longitude')

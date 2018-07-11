@@ -17,6 +17,9 @@ from mpas_analysis.shared.io.utility import build_config_full_path
 
 from mpas_analysis.shared.climatology import RemapMpasClimatologySubtask, \
     RemapObservedClimatologySubtask
+    
+from mpas_analysis.ocean.remap_depth_slices_subtask import \
+    RemapDepthSlicesSubtask
 
 from mpas_analysis.ocean.plot_climatology_map_subtask import \
     PlotClimatologyMapSubtask
@@ -60,7 +63,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                 componentName='ocean',
                 tags=['climatology', 'horizontalMap', fieldName, 'publicObs'])
 
-        mpasFieldName = 'timeMonthly_avg_velocityZonal'
+        mpasFieldName = 'eke'
         iselValues = {'nVertLevels': 0}
 
         sectionName = self.taskName
@@ -81,17 +84,24 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             raise ValueError('config section {} does not contain valid list '
                              'of comparison grids'.format(sectionName))
 
-        # the variable mpasFieldName will be added to mpasClimatologyTask
+        # the variables in variableList will be added to mpasClimatologyTask
         # along with the seasons.
-        remapClimatologySubtask = RemapMpasClimatologySubtask(
+        variableList=['timeMonthly_avg_velocityZonal',
+                      'timeMonthly_avg_velocityMeridional',
+                      'timeMonthly_avg_velocityZonalSquared',
+                      'timeMonthly_avg_velocityMeridionalSquared']
+        remapClimatologySubtask = RemapMpasEKEClimatology(
             mpasClimatologyTask=mpasClimatologyTask,
             parentTask=self,
             climatologyName=fieldName,
-            variableList=[mpasFieldName],
+            variableList=variableList,
             comparisonGridNames=comparisonGridNames,
             seasons=seasons,
-            iselValues=iselValues)
+            depths=['top'],
+            iselValues=None) # drops everything but the top layer
+        
 
+        # to compare to observations:
         if refConfig is None:
 
             refTitleLabel = \
@@ -115,6 +125,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             self.add_subtask(remapObservationsSubtask)
             diffTitleLabel = 'Model - Observations'
 
+        # compare with previous run:
         else:
             remapObservationsSubtask = None
             refRunName = refConfig.get('runs', 'mainRunName')
@@ -152,6 +163,68 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
         # }}}
     # }}}
 
+
+# adds to the functionality of RemapDepthSlicesSubtask 
+class RemapMpasEKEClimatology(RemapDepthSlicesSubtask):  # {{{
+    """
+    A subtask for computing climatologies of eddy kinetic energy from means of
+    velocity and velocity-squared.
+    """
+    # Authors
+    # -------
+    # Kevin Rosa
+
+    def customize_masked_climatology(self, climatology, season):  # {{{
+        """
+        Construct velocity magnitude as part of the climatology
+
+        Parameters
+        ----------
+        climatology : ``xarray.Dataset`` object
+            the climatology data set
+
+        season : str
+            The name of the season to be masked
+
+        Returns
+        -------
+        climatology : ``xarray.Dataset`` object
+            the modified climatology data set
+        """
+        # Authors
+        # -------
+        # Xylar Asay-Davis
+
+        # first, call the base class's version of this function so we extract
+        # the desired slices.
+        climatology = super(RemapMpasEKEClimatology,
+                            self).customize_masked_climatology(climatology,
+                                                               season)
+        # climatology is a class and each class changes what print does. climatology class will look like ncdump
+        print('howdy 1\n\n')
+        zonalVel = climatology.timeMonthly_avg_velocityZonal
+        meridVel = climatology.timeMonthly_avg_velocityMeridional
+        zonalVel2 = climatology.timeMonthly_avg_velocityZonalSquared
+        meridVel2 = climatology.timeMonthly_avg_velocityMeridionalSquared
+#        zonalVel = climatology.timeMonthly_avg_velocityZonal.values
+#        meridVel = climatology.timeMonthly_avg_velocityMeridional.values
+#        zonalVel2 = climatology.timeMonthly_avg_velocityZonalSquared.values
+#        meridVel2 = climatology.timeMonthly_avg_velocityMeridionalSquared.values
+        
+        scaleFactor = 100 * 100  # m2/s2 to cm2/s2
+        eke = (zonalVel2 - zonalVel**2 + meridVel2 - meridVel**2) * 0.5 * scaleFactor
+        climatology['eke'] = eke  # this creates a new variable eke in climatology (like netcdf)
+        climatology.eke.attrs['units'] = 'cm$^[2]$ s$^{-2}$'
+        climatology.eke.attrs['description'] = 'eddy kinetic energy'
+
+        print('howdy 2\n\n')
+        # drop unnecessary fields before re-mapping
+        climatology.drop(['timeMonthly_avg_velocityZonal','timeMonthly_avg_velocityMeridional',
+                          'timeMonthly_avg_velocityZonalSquared','timeMonthly_avg_velocityMeridionalSquared'])
+        print('howdy 3\n\n')
+        return climatology  # }}}
+
+    # }}}
 
 class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
     """
@@ -208,9 +281,11 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         sectionName = self.taskName
 
         dsObs = xr.open_dataset(fileName)
-        # since eke is same size as N, will just rename and update
+        # since eke is same size as N, will just rename and then update
         dsObs.rename({'N': 'eke'}, inplace=True)
-        dsObs['eke'].values = (dsObs['Up2bar'].values + dsObs['Vp2bar'].values) * 0.5 * 100 * 100
+        
+        scaleFactor = 100 * 100  # m2/s2 to cm2/s2
+        dsObs['eke'].values = (dsObs['Up2bar'].values + dsObs['Vp2bar'].values) * 0.5 * scaleFactor
         
         # to solve issue with array being transposed relative to model:
         dsObs['eke'] = dsObs['eke'].transpose('latitude','longitude')

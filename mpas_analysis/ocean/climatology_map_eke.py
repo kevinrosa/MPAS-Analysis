@@ -64,7 +64,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
                 tags=['climatology', 'horizontalMap', fieldName, 'publicObs'])
 
         mpasFieldName = 'eke'
-        iselValues = {'nVertLevels': 0}
+        iselValues = None  # {'nVertLevels': 0}
 
         sectionName = self.taskName
 
@@ -98,7 +98,7 @@ class ClimatologyMapEKE(AnalysisTask):  # {{{
             comparisonGridNames=comparisonGridNames,
             seasons=seasons,
             depths=['top'],
-            iselValues=None) # drops everything but the top layer
+            iselValues=iselValues) 
         
 
         # to compare to observations:
@@ -201,27 +201,22 @@ class RemapMpasEKEClimatology(RemapDepthSlicesSubtask):  # {{{
                             self).customize_masked_climatology(climatology,
                                                                season)
         # climatology is a class and each class changes what print does. climatology class will look like ncdump
-        print('howdy 1\n\n')
         zonalVel = climatology.timeMonthly_avg_velocityZonal
         meridVel = climatology.timeMonthly_avg_velocityMeridional
         zonalVel2 = climatology.timeMonthly_avg_velocityZonalSquared
         meridVel2 = climatology.timeMonthly_avg_velocityMeridionalSquared
-#        zonalVel = climatology.timeMonthly_avg_velocityZonal.values
-#        meridVel = climatology.timeMonthly_avg_velocityMeridional.values
-#        zonalVel2 = climatology.timeMonthly_avg_velocityZonalSquared.values
-#        meridVel2 = climatology.timeMonthly_avg_velocityMeridionalSquared.values
         
+        # calculate mpas eddy kinetic energy
         scaleFactor = 100 * 100  # m2/s2 to cm2/s2
         eke = (zonalVel2 - zonalVel**2 + meridVel2 - meridVel**2) * 0.5 * scaleFactor
+        
         climatology['eke'] = eke  # this creates a new variable eke in climatology (like netcdf)
         climatology.eke.attrs['units'] = 'cm$^[2]$ s$^{-2}$'
         climatology.eke.attrs['description'] = 'eddy kinetic energy'
 
-        print('howdy 2\n\n')
         # drop unnecessary fields before re-mapping
         climatology.drop(['timeMonthly_avg_velocityZonal','timeMonthly_avg_velocityMeridional',
                           'timeMonthly_avg_velocityZonalSquared','timeMonthly_avg_velocityMeridionalSquared'])
-        print('howdy 3\n\n')
         return climatology  # }}}
 
     # }}}

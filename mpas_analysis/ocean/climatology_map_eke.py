@@ -276,18 +276,21 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
         '''
         # Authors
         # -------
-        # Kevin Rosa
-        sectionName = self.taskName
-
-        dsObs = xr.open_dataset(fileName)
-        # since eke is same size as N, will just rename and then update
-        dsObs.rename({'N': 'eke'}, inplace=True)
+        # Kevin Rosa, Xylar Asay-Davis
+        
+        dsIn = xr.open_dataset(fileName)
         
         scaleFactor = 100 * 100  # m2/s2 to cm2/s2
-        dsObs['eke'].values = (dsObs['Up2bar'].values + dsObs['Vp2bar'].values) * 0.5 * scaleFactor
+        eke = 0.5 * scaleFactor * (dsIn['Up2bar'].values + dsIn['Vp2bar'].values)
         
-        # to solve issue with array being transposed relative to model:
-        dsObs['eke'] = dsObs['eke'].transpose('latitude','longitude')
+        # create a new dataset for the observations. solves transpose issues.
+        dsObs = xr.Dataset({'eke': (['latitude','longitude'], eke.T)},
+                            coords={'Lat': (['latitude'], dsIn.Lat.values),
+                                    'Lon': (['longitude'], dsIn.Lon.values)}
+                            )
+        # update attributes
+        dsObs.eke.attrs['units'] = 'cm$^2$ s$^{-2}$'
+        dsObs.eke.attrs['long_name'] = 'Eddy kinetic energy'
 
         return dsObs  # }}}
 

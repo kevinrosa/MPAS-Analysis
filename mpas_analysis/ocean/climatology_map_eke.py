@@ -200,14 +200,9 @@ class RemapMpasEKEClimatology(RemapDepthSlicesSubtask):  # {{{
         climatology = super(RemapMpasEKEClimatology,
                             self).customize_masked_climatology(climatology,
                                                                season)
-#        zonalVel = climatology.timeMonthly_avg_velocityZonal
-#        meridVel = climatology.timeMonthly_avg_velocityMeridional
-#        zonalVel2 = climatology.timeMonthly_avg_velocityZonalSquared
-#        meridVel2 = climatology.timeMonthly_avg_velocityMeridionalSquared
         
         # calculate mpas eddy kinetic energy
         scaleFactor = 100 * 100  # m2/s2 to cm2/s2
-#        eke = (zonalVel2 - zonalVel**2 + meridVel2 - meridVel**2) * 0.5 * scaleFactor
         eke = 0.5 * scaleFactor * \
                ( climatology.timeMonthly_avg_velocityZonalSquared \
                - climatology.timeMonthly_avg_velocityZonal ** 2 \
@@ -219,8 +214,10 @@ class RemapMpasEKEClimatology(RemapDepthSlicesSubtask):  # {{{
         climatology.eke.attrs['description'] = 'eddy kinetic energy'
 
         # drop unnecessary fields before re-mapping
-        climatology.drop(['timeMonthly_avg_velocityZonal','timeMonthly_avg_velocityMeridional',
-                          'timeMonthly_avg_velocityZonalSquared','timeMonthly_avg_velocityMeridionalSquared'])
+        climatology.drop(['timeMonthly_avg_velocityZonal',
+                          'timeMonthly_avg_velocityMeridional',
+                          'timeMonthly_avg_velocityZonalSquared',
+                          'timeMonthly_avg_velocityMeridionalSquared'])
         return climatology  # }}}
 
     # }}}
@@ -231,7 +228,7 @@ class RemapObservedEKEClimatology(RemapObservedClimatologySubtask):  # {{{
     """
     # Authors
     # -------
-    # Luke Van Roekel, Xylar Asay-Davis, Milena Veneziani
+    # Kevin Rosa
 
     def get_observation_descriptor(self, fileName):  # {{{
         '''

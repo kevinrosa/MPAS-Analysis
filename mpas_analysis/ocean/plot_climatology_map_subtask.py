@@ -1,13 +1,10 @@
-# This software is open source software available under the BSD-3 license.
+# Copyright (c) 2017,  Los Alamos National Security, LLC (LANS)
+# and the University Corporation for Atmospheric Research (UCAR).
 #
-# Copyright (c) 2018 Los Alamos National Security, LLC. All rights reserved.
-# Copyright (c) 2018 Lawrence Livermore National Security, LLC. All rights
-# reserved.
-# Copyright (c) 2018 UT-Battelle, LLC. All rights reserved.
-#
+# Unless noted otherwise source code is licensed under the BSD license.
 # Additional copyright and license information can be found in the LICENSE file
-# distributed with this code, or at
-# https://raw.githubusercontent.com/MPAS-Dev/MPAS-Analysis/master/LICENSE
+# distributed with this code, or at http://mpas-dev.github.com/license.html
+#
 """
 An analysis subtasks for plotting comparison of 2D model fields against
 observations.
@@ -189,8 +186,8 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
 
         # call the constructor from the base class (AnalysisTask)
         super(PlotClimatologyMapSubtask, self).__init__(
-                config=config, taskName=taskName, subtaskName=subtaskName,
-                componentName='ocean', tags=tags)
+            config=config, taskName=taskName, subtaskName=subtaskName,
+            componentName='ocean', tags=tags)
 
         # this task should not run until the remapping subtasks are done, since
         # it relies on data from those subtasks
@@ -353,7 +350,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
         # first read the model climatology
         remappedFileName = \
             self.remapMpasClimatologySubtask.get_remapped_file_name(
-                    season=season, comparisonGridName=comparisonGridName)
+                season=season, comparisonGridName=comparisonGridName)
 
         remappedModelClimatology = xr.open_dataset(remappedFileName)
 
@@ -365,7 +362,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
                                'regenerate the climatology'.format(depth))
 
             remappedModelClimatology = remappedModelClimatology.sel(
-                    depthSlice=str(depth), drop=True)
+                depthSlice=str(depth), drop=True)
 
         # now the observations or reference run
         if self.remapObsClimatologySubtask is not None:
@@ -387,7 +384,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
             refEndYear = self.refConfig.getint('climatology', 'endYear')
             if refStartYear != self.startYear or refEndYear != self.endYear:
                 self.refTitleLabel = '{}\n(years {:04d}-{:04d})'.format(
-                        self.refTitleLabel, refStartYear, refEndYear)
+                    self.refTitleLabel, refStartYear, refEndYear)
 
         else:
             remappedRefClimatology = None
@@ -400,7 +397,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
                                'regenerate the climatology'.format(depth))
 
             remappedRefClimatology = remappedRefClimatology.sel(
-                    depthSlice=str(depth), drop=True)
+                depthSlice=str(depth), drop=True)
 
         if self.removeMean:
             if remappedRefClimatology is None:
@@ -409,13 +406,13 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
                     remappedModelClimatology[self.mpasFieldName].mean()
             else:
                 masked = remappedModelClimatology[self.mpasFieldName].where(
-                        remappedRefClimatology[self.refFieldName].notnull())
+                    remappedRefClimatology[self.refFieldName].notnull())
                 remappedModelClimatology[self.mpasFieldName] = \
                     remappedModelClimatology[self.mpasFieldName] - \
                     masked.mean()
 
                 masked = remappedRefClimatology[self.refFieldName].where(
-                        remappedModelClimatology[self.mpasFieldName].notnull())
+                    remappedModelClimatology[self.mpasFieldName].notnull())
                 remappedRefClimatology[self.refFieldName] = \
                     remappedRefClimatology[self.refFieldName] - \
                     masked.mean()
@@ -439,6 +436,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
 
         modelOutput = nans_to_numpy_mask(
             remappedModelClimatology[self.mpasFieldName].values)
+        modelOutput = np.squeeze(modelOutput)
 
         lon = remappedModelClimatology['lon'].values
         lat = remappedModelClimatology['lat'].values
@@ -451,6 +449,7 @@ class PlotClimatologyMapSubtask(AnalysisTask):  # {{{
         else:
             refOutput = nans_to_numpy_mask(
                 remappedRefClimatology[self.refFieldName].values)
+            refOutput = np.squeeze(refOutput)
 
             bias = modelOutput - refOutput
 

@@ -52,6 +52,7 @@ Ocean tasks
    ClimatologyMapSSS
    ClimatologyMapMLD
    ClimatologyMapSSH
+   ClimatologyMapEKE
    ClimatologyMapOHCAnomaly
    ClimatologyMapAntarcticMelt
    ClimatologyMapSose
@@ -107,7 +108,6 @@ Sea ice tasks
    ClimatologyMapSeaIceConc
    ClimatologyMapSeaIceThick
    TimeSeriesSeaIce
-   ClimatologyMapIcebergConc
 
 .. currentmodule:: mpas_analysis.sea_ice.plot_climatology_map_subtask
 
